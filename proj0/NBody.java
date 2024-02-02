@@ -6,14 +6,14 @@ public class NBody{
         return radius;
     }
 
-    public static Body[] readBodies(String filename){
+    public static Planet[] readPlanets(String filename){
         In input = new In(filename);
         //int lines = input.readAllLines().length;
         
 
         int n_planets = input.readInt();
         double radius = input.readDouble();
-        Body[] all_Bodies = new Body[n_planets];
+        Planet[] all_Bodies = new Planet[n_planets];
 
         // i can't append those to the list... how can I find the array size? 
         for (int i = 0; i < n_planets; i += 1){
@@ -23,7 +23,7 @@ public class NBody{
             double yV = input.readDouble();
             double m = input.readDouble();
             String img = input.readString();
-            all_Bodies[i] = new Body(xP, yP, xV, yV, m, img);
+            all_Bodies[i] = new Planet(xP, yP, xV, yV, m, img);
         }
 
         return all_Bodies;
@@ -35,7 +35,7 @@ public class NBody{
         double T = Double.parseDouble(args[0]);
         double dt = Double.parseDouble(args[1]);
         String filename = args[2];
-        Body[] allBodies = readBodies(filename);
+        Planet[] allBodies = readPlanets(filename);
         double radius = readRadius(filename);
 
         String backdrop = "starfield.jpg";

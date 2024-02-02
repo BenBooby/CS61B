@@ -1,99 +1,98 @@
 import java.lang.Math.*;
-
-public class Planet{
-    public double xxPos;
-    public double yyPos;
-    public double xxVel;
-    public double yyVel;
-    public double mass;
+public class Planet {  
+    // Six variables
+    public double xxPos;   // current x position
+    public double yyPos; // current y position
+    public double xxVel; //velocity in x direction
+    public double yyVel; //velocity in y direction
+    public double mass; //mass
     public String imgFileName;
+    public static double g = 6.67 * Math.pow(10,-11);
 
-    private static final double G = 6.67e-11;
+    // use double letter to reduce the change of typos.
 
+    //1st constructor
     public Planet(double xP, double yP, double xV, double yV, double m, String img){
-        this.xxPos = xP;
-        this.yyPos = yP;
-        this.xxVel = xV;
-        this.yyVel = yV;
-        this.mass = m;
-        this.imgFileName = img;    
+        xxPos = xP;
+        yyPos = yP;
+        xxVel = xV;
+        yyVel = yV;
+        mass = m;
+        imgFileName = img;
     }
 
-    public Planet(Planet p){
-        this.xxPos = p.xxPos;
-        this.yyPos = p.yyPos;
-        this.xxVel = p.xxVel;
-        this.yyVel = p.yyVel;
-        this.mass = p.mass;
-        this.imgFileName = p.imgFileName;  
+    //2nd constructor
+    public Planet(Planet b){
+        xxPos = b.xxPos;
+        yyPos = b.yyPos;
+        xxVel = b.xxVel;
+        yyVel = b.yyVel;
+        mass = b.mass;
+        imgFileName = b.imgFileName;
     }
 
-    public double calcDistance(Planet p2){
-        double delX = this.xxPos - p2.xxPos;
-        double delY = this.yyPos - p2.yyPos;
-        double rSq = delX * delX + delY * delY;
-        
-        return java.lang.Math.sqrt(rSq);
+    // compute the distance
+    public double calcDistance(Planet b){
+        double r = Math.sqrt((this.xxPos - b.xxPos)*(this.xxPos - b.xxPos) + (this.yyPos - b.yyPos)*(this.yyPos - b.yyPos));
+        return r;
     }
 
-    public double calcForceExertedBy (Planet p){
-        double upV = G * this.mass * p.mass;
-        double downV = this.calcDistance(p) * this.calcDistance(p);
-
-        return upV / downV;
+    public double calcForceExertedBy(Planet b){
+        double f = (this.g * this.mass * b.mass) / (this.calcDistance(b) * this.calcDistance(b));
+        return f;
     }
 
-    public double calcForceExertedByX (Planet p){
-        double force = this.calcForceExertedBy(p);
-        double upV = force * (p.xxPos - this.xxPos);
-        double downV = this.calcDistance(p);
-
-        return upV / downV;
+    public double calcForceExertedByX(Planet b){
+        double f = calcForceExertedBy(b);
+        return (f * (b.xxPos - this.xxPos)) / this.calcDistance(b);
     }
 
-    public double calcForceExertedByY (Planet p){
-        double force = this.calcForceExertedBy(p);
-        double upV = force * (p.yyPos - this.yyPos);
-        double downV = this.calcDistance(p);
-
-        return upV / downV;
+    public double calcForceExertedByY(Planet b){
+        double f = calcForceExertedBy(b);
+        return (f * (b.yyPos - this.yyPos)) / this.calcDistance(b);
     }
-    
-    public double calcNetForceExertedByX(Planet[] allPlanets){
-        double sum = 0;
-        for(Planet p : allPlanets){
-            if(!p.equals(this)){
-                sum += this.calcForceExertedByX(p);
+
+    public double calcNetForceExertedByX(Planet[] b_array){
+        double netX = 0;
+        for (int i = 0; i < b_array.length; i += 1){
+            if(this.equals(b_array[i])){
+                continue;
             }
+            netX += this.calcForceExertedByX(b_array[i]);
         }
-        return sum;
+        return netX;
     }
 
-    public double calcNetForceExertedByY(Planet[] allPlanets){
-        double sum = 0;
-        for(Planet p : allPlanets){
-            if(!p.equals(this)){
-                sum += this.calcForceExertedByY(p);
+    public double calcNetForceExertedByY(Planet[] b_array){
+        double netY = 0;
+        for (int i = 0; i < b_array.length; i += 1){
+            if(this.equals(b_array[i])){
+                continue;
             }
+            netY += this.calcForceExertedByY(b_array[i]);
         }
-        return sum;
+        return netY;
     }
 
-    public void update(double dt, double fX, double fY){
-        // a_netX
-        double aNetX = fX / this.mass;
-        double aNetY = fY / this.mass;
-        //vel update
-        this.xxVel = this.xxVel + dt * aNetX;
-        this.yyVel = this.yyVel + dt * aNetY;
-        //update position
-        this.xxPos = this.xxPos + dt * this.xxVel;
-        this.yyPos = this.yyPos + dt * this.yyVel;
+    public void update(double time, double fx, double fy){
+        double dt = time;
+        double ax = fx/this.mass;
+        double ay = fy/this.mass;
+        this.xxVel += ax * dt;
+        this.yyVel += ay * dt;
+
+        this.xxPos += this.xxVel * dt;
+        this.yyPos += this.yyVel * dt;
+
     }
 
     public void draw(){
-        StdDraw.setScale(- 3e+11, 3e+11);
-        StdDraw.picture(this.xxPos, this.yyPos, this.imgFileName);
-    }
+        String image = imgFileName;
 
+		/* Clears the drawing window. */
+		StdDraw.picture(xxPos,yyPos,image);
+
+		/* Shows the drawing to the screen, and waits 2000 milliseconds. */
+		//StdDraw.show();
+    }
 }
