@@ -1,83 +1,82 @@
-import java.util.ArrayList;
-
 public class NBody{
-
-    private static String imageToDraw = "images/starfield.jpg";
-
-    public static double readRadius(String path){
-        In in = new In(path);
-        in.readInt();
-        double radius = in.readDouble();
-        
+    public static double readRadius(String filename){
+        In input = new In(filename);
+        int n_planets = input.readInt();
+        double radius = input.readDouble();
         return radius;
     }
 
-    public static Planet[] readPlanets(String path){
-        In in = new In(path);
-        int number = in.readInt();
-        in.readDouble();
-        Planet[] planets = new Planet[number];
-        for (int i = 0; i < planets.length; i++) {
-            double xxPos = in.readDouble();
-            double yyPos = in.readDouble();
-            double xxVel = in.readDouble();
-            double yyVel = in.readDouble();
-            double mass = in.readDouble();
-            String location = in.readString();
-            planets[i] = new Planet(xxPos,yyPos,xxVel,yyVel,mass,location);
-        }
+    public static Body[] readBodies(String filename){
+        In input = new In(filename);
+        //int lines = input.readAllLines().length;
         
-        return planets;
+
+        int n_planets = input.readInt();
+        double radius = input.readDouble();
+        Body[] all_Bodies = new Body[n_planets];
+
+        // i can't append those to the list... how can I find the array size? 
+        for (int i = 0; i < n_planets; i += 1){
+            double xP = input.readDouble();
+            double yP = input.readDouble();
+            double xV = input.readDouble();
+            double yV = input.readDouble();
+            double m = input.readDouble();
+            String img = input.readString();
+            all_Bodies[i] = new Body(xP, yP, xV, yV, m, img);
+        }
+
+        return all_Bodies;
     }
 
     public static void main(String[] args) {
-        double T = Double.valueOf(args[0]);
-        double dt = Double.valueOf(args[1]);
-        String filename = args[2];
-        
-        double radius = readRadius(filename);
-        Planet[] planets = readPlanets(filename);
-
         StdDraw.enableDoubleBuffering();
+        /*Get all the info from the note */
+        double T = Double.parseDouble(args[0]);
+        double dt = Double.parseDouble(args[1]);
+        String filename = args[2];
+        Body[] allBodies = readBodies(filename);
+        double radius = readRadius(filename);
 
-        double timeVariable = 0.0;
+        String backdrop = "starfield.jpg";
 
-        while (timeVariable < T) {
+        StdDraw.setScale(-radius, radius);
 
-            /* Draw background */
-            StdDraw.setScale(-100, 100);
+		/* Clears the drawing window. */
+
+        for (double time = 0; time <= T;time += dt){
+            double[] xForces = new double[allBodies.length];
+            double[] yForces = new double[allBodies.length];
+            for (int i = 0; i < allBodies.length ; i+= 1){
+                xForces[i] = allBodies[i].calcNetForceExertedByX(allBodies);
+                yForces[i] = allBodies[i].calcNetForceExertedByY(allBodies);
+            }
+
+            for (int i = 0; i < allBodies.length ; i+= 1){
+                allBodies[i].update(dt, xForces[i],yForces[i]);
+            }
+
+            /* Clears the drawing window. */
             StdDraw.clear();
-            StdDraw.picture(0,0,imageToDraw);
+            StdDraw.picture(0,0,backdrop);
 
-            /* Draw planets */
-             for (Planet p : planets) {
-                 if (!p.imgFileName.contains("images")){
-                    p.imgFileName = "images/" + p.imgFileName;
-                 }
-                 p.update(dt, p.calcNetForceExertedByX(planets), p.calcNetForceExertedByY(planets));
-                 System.out.println("the path is : " + p.imgFileName);
-                 System.out.println("the location is : " + p.xxPos + "," + p.yyPos);
-                 p.draw();
-             }
+            for (int i =0; i < allBodies.length;i += 1){
+                allBodies[i].draw();
+            }
+            /* Shows the drawing to the screen, and waits 2000 milliseconds. */
 
             StdDraw.show();
             StdDraw.pause(10);
 
-            /* increase time */
-            timeVariable = timeVariable + dt;
-            // System.out.print(timeVariable);
         }
 
-        /* printing the Universe */
-        StdOut.printf("%d\n", planets.length);
+        StdOut.printf("%d\n", allBodies.length);
         StdOut.printf("%.2e\n", radius);
-        for (int i = 0; i < planets.length; i++) {
+        for (int i = 0; i < allBodies.length; i++) {
             StdOut.printf("%11.4e %11.4e %11.4e %11.4e %11.4e %12s\n",
-                        planets[i].xxPos, planets[i].yyPos, planets[i].xxVel,
-                        planets[i].yyVel, planets[i].mass, planets[i].imgFileName);   
+            allBodies[i].xxPos, allBodies[i].yyPos, allBodies[i].xxVel,
+            allBodies[i].yyVel, allBodies[i].mass, allBodies[i].imgFileName);   
+
         }
-
-    }   
-
-
+    }
 }
