@@ -1,4 +1,3 @@
-import java.lang.Math.*;
 public class Planet {  
     // Six variables
     public double xxPos;   // current x position
@@ -7,7 +6,7 @@ public class Planet {
     public double yyVel; //velocity in y direction
     public double mass; //mass
     public String imgFileName;
-    public static double g = 6.67 * Math.pow(10,-11);
+    private static double g = 6.67 * Math.pow(10,-11);
 
     // use double letter to reduce the change of typos.
 
